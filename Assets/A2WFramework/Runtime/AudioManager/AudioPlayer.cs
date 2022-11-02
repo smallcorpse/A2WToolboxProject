@@ -92,14 +92,11 @@ namespace A2W
             }
         }
 
-        public void StopSound(AudioClip clip)
+        public void StopAllSound()
         {
             foreach (var player in soundPlayers)
             {
-                if (player.clip.Equals(clip))
-                {
-                    player.Stop();
-                }
+                player.Stop();
             }
         }
 
