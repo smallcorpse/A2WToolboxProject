@@ -30,6 +30,12 @@ namespace A2W
 			}
 		}
 
+		public void clear()
+        {
+			prefabLookup = new Dictionary<GameObject, ObjectPool<GameObject>>();
+			instanceLookup = new Dictionary<GameObject, ObjectPool<GameObject>>();
+		}
+
 		public void warmPool(GameObject prefab, int size)
 		{
 			if (prefabLookup.ContainsKey(prefab))
@@ -100,6 +106,11 @@ namespace A2W
 		}
 
 		#region Static API
+
+		public static void Clear()
+        {
+			instance.clear();
+        }
 
 		public static void WarmPool(GameObject prefab, int size)
 		{
