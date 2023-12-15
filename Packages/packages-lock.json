@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.capua.a2wframework": {
+    "com.capua.a2wtoolbox": {
       "version": "file:com.capua.a2wframework",
       "depth": 0,
       "source": "embedded",
