@@ -1,0 +1,16 @@
+{
+    "name": "A2W.Runtime.PoolManager",
+    "rootNamespace": "",
+    "references": [
+        "GUID:26506d273ffa65c46a97cad1f6d498da"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
