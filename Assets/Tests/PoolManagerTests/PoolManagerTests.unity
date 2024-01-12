@@ -168,6 +168,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 9128466261149298186, guid: d9113a03a795c624b9777a855ec4249e, type: 3}
+  reference:
+    m_AssetGUID: d9113a03a795c624b9777a855ec4249e
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  address: Assets/Tests/PoolManagerTests/Circle.prefab
 --- !u!1 &1729146279
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,5 +302,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 430d968e63581624e84fc43c08982663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logStatus: 0
+  logStatus: 1
   root: {fileID: 2081463522}

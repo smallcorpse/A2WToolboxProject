@@ -1,22 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using A2W;
 
 public class PoolManagerTests : MonoBehaviour
 {
     [SerializeField] GameObject prefab;
+    [SerializeField] AssetReference reference;
+    [SerializeField] string address;
 
     private void Awake()
     {
-        PoolManager.WarmPool(prefab, 500);
+        PoolManager.WarmPool(prefab, 100);
+        PoolManager.WarmPool(reference, 100);
+        PoolManager.WarmPool(address, 100);
     }
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.A))
         {
             PoolManager.SpawnObject(prefab, GetRandomPositionInScreen(), Quaternion.identity);
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            PoolManager.SpawnObject(reference, GetRandomPositionInScreen(), Quaternion.identity);
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            PoolManager.SpawnObject(address, GetRandomPositionInScreen(), Quaternion.identity);
         }
     }
 
