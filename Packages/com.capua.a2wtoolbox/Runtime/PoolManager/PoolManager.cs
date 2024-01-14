@@ -106,6 +106,7 @@ namespace A2W
 		private void releaseObject(GameObject clone)
 		{
 			clone.SetActive(false);
+			if (root != null) clone.transform.SetParent(root, false);
 
 			if (instanceLookup.ContainsKey(clone))
 			{
