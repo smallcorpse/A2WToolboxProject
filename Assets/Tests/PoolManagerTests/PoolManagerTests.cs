@@ -13,8 +13,6 @@ public class PoolManagerTests : MonoBehaviour
     private void Awake()
     {
         PoolManager.WarmPool(prefab, 100);
-        PoolManager.WarmPool(reference, 100);
-        PoolManager.WarmPool(address, 100);
     }
 
     private void Update()
@@ -22,14 +20,6 @@ public class PoolManagerTests : MonoBehaviour
         if (Input.GetKey(KeyCode.A))
         {
             PoolManager.SpawnObject(prefab, GetRandomPositionInScreen(), Quaternion.identity);
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            PoolManager.SpawnObject(reference, GetRandomPositionInScreen(), Quaternion.identity);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            PoolManager.SpawnObject(address, GetRandomPositionInScreen(), Quaternion.identity);
         }
     }
 
