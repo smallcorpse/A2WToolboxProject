@@ -12,6 +12,6 @@ public class Circle : MonoBehaviour
 
     public void ReleaseSelf()
     {
-        PoolManager.ReleaseObject(this.gameObject);
+        PoolManagerTests.instance.poolManager.ReleaseObject(this.gameObject);
     }
 }

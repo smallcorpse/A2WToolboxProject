@@ -4,22 +4,24 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using A2W;
 
-public class PoolManagerTests : MonoBehaviour
+public class PoolManagerTests : SceneSingleton<PoolManagerTests>
 {
+    [SerializeField] public PoolManager poolManager;
+
     [SerializeField] GameObject prefab;
     [SerializeField] AssetReference reference;
     [SerializeField] string address;
 
     private void Awake()
     {
-        PoolManager.WarmPool(prefab, 100);
+        poolManager.WarmPool(prefab, 100);
     }
 
     private void Update()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            PoolManager.SpawnObject(prefab, GetRandomPositionInScreen(), Quaternion.identity);
+            poolManager.SpawnObject(prefab, GetRandomPositionInScreen(), Quaternion.identity);
         }
     }
 

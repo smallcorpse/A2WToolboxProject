@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace A2W
 {
-	public class PoolManager : SceneSingleton<PoolManager>
+	public class PoolManager : MonoBehaviour
 	{
 		public bool logStatus;
 		public Transform root;
@@ -15,26 +15,17 @@ namespace A2W
 
 		private bool dirty = false;
 
-		private void init()
+		public void Init()
 		{
 			prefabLookup = new Dictionary<GameObject, ObjectPool<GameObject>>();
 			instanceLookup = new Dictionary<GameObject, ObjectPool<GameObject>>();
 		}
 
-		private void logUpdate()
-		{
-			if (logStatus && dirty)
-			{
-				printStatus();
-				dirty = false;
-			}
-		}
-
-		private void warmPool(GameObject prefab, int size)
+		public void WarmPool(GameObject prefab, int size)
 		{
             if (prefabLookup is null)
             {
-                init();
+                Init();
             }
 
             if (prefabLookup.ContainsKey(prefab))
@@ -47,12 +38,12 @@ namespace A2W
 			dirty = true;
 		}
 
-		private GameObject spawnObject(GameObject prefab)
+		public GameObject SpawnObject(GameObject prefab)
 		{
-			return spawnObject(prefab, Vector3.zero, Quaternion.identity);
+			return SpawnObject(prefab, Vector3.zero, Quaternion.identity);
 		}
 
-        private GameObject spawnObject(GameObject prefab, Vector3 position, Quaternion rotation)
+        public GameObject SpawnObject(GameObject prefab, Vector3 position, Quaternion rotation)
 		{
 			if (!prefabLookup.ContainsKey(prefab))
 			{
@@ -70,7 +61,7 @@ namespace A2W
 			return clone;
 		}
 
-		private void releaseObject(GameObject clone)
+		public void ReleaseObject(GameObject clone)
 		{
 			clone.SetActive(false);
 			if (root != null) clone.transform.SetParent(root, false);
@@ -97,6 +88,15 @@ namespace A2W
 			return go;
 		}
 
+		private void logUpdate()
+		{
+			if (logStatus && dirty)
+			{
+				printStatus();
+				dirty = false;
+			}
+		}
+
 		private void printStatus()
 		{
 			foreach (KeyValuePair<GameObject, ObjectPool<GameObject>> keyVal in prefabLookup)
@@ -105,34 +105,6 @@ namespace A2W
 			}
 		}
 
-		#region Static API
-
-		public static void Init()
-        {
-			instance.init();
-        }
-
-		public static void WarmPool(GameObject prefab, int size)
-		{
-			instance.warmPool(prefab, size);
-		}
-
-		public static GameObject SpawnObject(GameObject prefab)
-		{
-			return instance.spawnObject(prefab);
-		}
-
-		public static GameObject SpawnObject(GameObject prefab, Vector3 position, Quaternion rotation)
-		{
-			return instance.spawnObject(prefab, position, rotation);
-		}
-
-		public static void ReleaseObject(GameObject clone)
-		{
-			instance.releaseObject(clone);
-		}
-
-		#endregion
 	}
 }
 

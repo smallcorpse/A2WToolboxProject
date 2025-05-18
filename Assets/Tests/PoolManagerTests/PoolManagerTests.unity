@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ef729a41b9d674a9651f3e99b797dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  poolManager: {fileID: 2081463523}
   prefab: {fileID: 9128466261149298186, guid: d9113a03a795c624b9777a855ec4249e, type: 3}
   reference:
     m_AssetGUID: d9113a03a795c624b9777a855ec4249e

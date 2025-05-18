@@ -9,8 +9,7 @@ namespace A2W
 {
     public class SceneLoader : Singleton<SceneLoader>
     {
-        Dictionary<Transition, Transition> transitionDict; // 在这里存储所有用过的转场
-        Transition currentTransition; // 当前的过场实例
+        ITransition currentTransition; // 当前的过场实例
         Canvas canvas;
 
         public bool isPreLoading { get; set; } = false; // 预加载中
@@ -44,43 +43,27 @@ namespace A2W
         /// <param name="transition">转场方式</param>
         /// <param name="hasPreload">是否有预加载</param>
         /// <param name="leastTime">至少等待一定时间</param>
-        public void LoadScene(string SceneName, Transition transitionPrefab = null, bool hasPreload = false, float leastSecond = 0.2f)
+        public void LoadScene(string SceneName, ITransition transition = null, bool hasPreload = false, float leastSecond = 0.2f)
         {
+            // 如果现在不能转换场景直接返回
+            if (isLoading) return;
+
             if (canvas is null)
             {
                 Init();
             }
 
-            // 如果现在不能转换场景直接返回
-            if (isLoading) return;
-
             isPreLoading = hasPreload;
-            this.leastTime = new WaitForSeconds(leastSecond);
+            leastTime = new WaitForSeconds(leastSecond);
+
+            currentTransition = transition;
 
             // 如果有设置过场就设置过场
-            if (transitionPrefab != null)
+            if (transition is not null)
             {
-                if (transitionDict is null) 
-                {
-                    transitionDict = new Dictionary<Transition, Transition>();
-                }
-
-                if (transitionDict.ContainsKey(transitionPrefab))
-                {
-                    currentTransition = transitionDict[transitionPrefab];
-                }
-                else
-                {
-                    currentTransition = Instantiate<Transition>(transitionPrefab);
-                    currentTransition.transform.SetParent(canvas.transform, false);
-                    currentTransition.Init();
-
-                    transitionDict.Add(transitionPrefab, currentTransition);
-                }
-
+                currentTransition.Init(canvas.transform);
             }
                 
-
             // 开始转换场景
             StartCoroutine(LoadLevel(SceneName));
         }
@@ -101,10 +84,11 @@ namespace A2W
             // 现在不再能转换场景
             isLoading = true;
 
-            if (currentTransition)
+
+            if (currentTransition is not null)
             {
                 // 开始过场
-                currentTransition.StartTrans();
+                currentTransition.Begin();
 
                 // 等待一帧
                 // 理由再下面有解释，但其实这里本来不需要，因为检查动画前还夹着一个检查加载的过程。基本不会在一帧内就加载完
@@ -116,10 +100,9 @@ namespace A2W
 
 
                 // 等待动画播放完成
-                while (!currentTransition.IsAnimationDone())
+                while (!currentTransition.IsDone())
                     yield return null;
             }
-
 
             // 等待场景加载几乎完成
             while (loading.progress < 0.899)
@@ -136,10 +119,10 @@ namespace A2W
             while (isPreLoading)
                 yield return null;
 
-            if (currentTransition)
+            if (currentTransition is not null)
             {
                 // 结束过场
-                currentTransition.EndTrans();
+                currentTransition.Finish();
 
                 // 等待一帧
                 // 因为我发现如果在开始动画后不等待一帧的话，第二个动画其实还没开始播放，
@@ -150,7 +133,7 @@ namespace A2W
                 yield return leastTime;
 
                 // 等待动画播放完成
-                while (!currentTransition.IsAnimationDone())
+                while (!currentTransition.IsDone())
                     yield return null;
             }
 

@@ -443,7 +443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: SceneB
   button: {fileID: 176996693}
-  transition: {fileID: -2404257612161382180, guid: 5c164b1d6dc9adb4d80398f2f9936bef, type: 3}
+  transitionPrefab: {fileID: 4751346523450516168, guid: 5c164b1d6dc9adb4d80398f2f9936bef, type: 3}
 --- !u!1 &1573079340
 GameObject:
   m_ObjectHideFlags: 0
