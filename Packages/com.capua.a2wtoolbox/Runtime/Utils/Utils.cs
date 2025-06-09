@@ -6,6 +6,13 @@ namespace A2W
 {
     public static class Utils
     {
+        public static T GetRandomEnumValue<T>() where T : System.Enum
+        {
+            T[] values = (T[])System.Enum.GetValues(typeof(T));
+            return values[UnityEngine.Random.Range(0, values.Length)];
+        }
+        // 调用示例：MyEnum randomValue = GetRandomEnumValue<MyEnum>();
+
         public static Texture2D CaptureScreenshot(Rect rect)
         {
             Texture2D screenshot = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.RGB24, false);
