@@ -16,8 +16,12 @@ namespace A2W
         private Canvas mainCanvas;
         private GameObject canvasObject;
 
-        public void Init()
+        private string defaultPanelPath;
+
+        public void Init(string defaultPanelPath = panel_prefabs_dir_path)
         {
+            this.defaultPanelPath = defaultPanelPath;
+
             if (panels is null)
             {
                 panels = new List<UIPanel>();
@@ -71,6 +75,21 @@ namespace A2W
             }
         }
 
+        public async UniTask InitPanel<T>(string path) where T : UIPanel
+        {
+            // 在这里加载对应panel的预制体
+            T panel = await AssetsLoader.instance.LoadPrefab<T>(path);
+
+            // 加载完了以后存在panels里
+            if (panel != null)
+            {
+                panel.transform.SetParent(mainCanvas.transform, false);
+                panels.Add(panel);
+
+                panel.Init();
+            }
+        }
+
         public async UniTask ShowPanel<T>() where T : UIPanel
         {
             // 先判断panels里有没有对应的panel，没有就先调用InitPanel
@@ -108,7 +127,7 @@ namespace A2W
 
         private string GetPanelPath<T>() where T : UIPanel
         {
-            return panel_prefabs_dir_path + typeof(T).Name; // 使用Name而不是ToString()获取更简洁的类型名
+            return defaultPanelPath + typeof(T).Name; // 使用Name而不是ToString()获取更简洁的类型名
         }
     }
 }
