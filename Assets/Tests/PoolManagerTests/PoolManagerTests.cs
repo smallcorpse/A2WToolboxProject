@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using A2W;
 
 public class PoolManagerTests : SceneSingleton<PoolManagerTests>
@@ -9,7 +8,7 @@ public class PoolManagerTests : SceneSingleton<PoolManagerTests>
     [SerializeField] public PoolManager poolManager;
 
     [SerializeField] GameObject prefab;
-    [SerializeField] AssetReference reference;
+
     [SerializeField] string address;
 
     private void Awake()
