@@ -75,6 +75,7 @@ namespace A2W
         private async UniTask RequestPackageVersionAsync(ResourcePackage package)
         {
             var operation = package.RequestPackageVersionAsync();
+            //yield return operation;
             await operation.ToUniTask();
 
             if (operation.Status == EOperationStatus.Succeed)
@@ -88,11 +89,13 @@ namespace A2W
                 //更新失败
                 Debug.LogError(operation.Error);
             }
+
         }
 
         private async UniTask UpdatePackageManifest(ResourcePackage package)
         {
             var operation = package.UpdatePackageManifestAsync(PackageVersion);
+            //yield return operation;
             await operation.ToUniTask();
 
             if (operation.Status == EOperationStatus.Succeed)
@@ -115,6 +118,7 @@ namespace A2W
             var initParameters = new EditorSimulateModeParameters();
             initParameters.EditorFileSystemParameters = editorFileSystemParams;
             var initOperation = package.InitializeAsync(initParameters);
+            //yield return initOperation;
             await initOperation.ToUniTask();
 
             if (initOperation.Status == EOperationStatus.Succeed)
@@ -124,60 +128,21 @@ namespace A2W
         }
 
 #elif UNITY_STANDALONE_WIN
-        private async UniTask InitPackage(ResourcePackage package)
-        {
-            // 尝试使用离线模式初始化
-            var initParameters = new OfflinePlayModeParameters();
-            
-            // 即使没有内置文件也尝试初始化
-            var initOperation = package.InitializeAsync(initParameters);
-            await initOperation.ToUniTask();
 
-            if (initOperation.Status == EOperationStatus.Succeed)
-            {
-                Debug.Log("资源包初始化成功！");
-            }
-            else
-            {
-                Debug.LogError($"资源包初始化失败：{initOperation.Error}");
-                
-                // 如果离线模式失败，尝试使用联机模式
-                Debug.Log("尝试使用联机模式初始化...");
-                var hostPlayModeParameters = new HostPlayModeParameters();
-                hostPlayModeParameters.QueryServices = new GameQueryServices();
-                hostPlayModeParameters.DefaultHostServer = GetHostServerURL();
-                hostPlayModeParameters.FallbackHostServer = GetHostServerURL();
-                
-                var onlineInitOperation = package.InitializeAsync(hostPlayModeParameters);
-                await onlineInitOperation.ToUniTask();
-                
-                if (onlineInitOperation.Status == EOperationStatus.Succeed)
-                {
-                    Debug.Log("联机模式资源包初始化成功！");
-                }
-                else
-                {
-                    Debug.LogError($"联机模式资源包初始化失败：{onlineInitOperation.Error}");
-                }
-            }
-        }
+    private IEnumerator InitPackage(ResourcePackage package)
+    {
+        var buildinFileSystemParams = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
+        var initParameters = new OfflinePlayModeParameters();
+        initParameters.BuildinFileSystemParameters = buildinFileSystemParams;
+        var initOperation = package.InitializeAsync(initParameters);
+        yield return initOperation;
+    
+        if(initOperation.Status == EOperationStatus.Succeed)
+            Debug.Log("资源包初始化成功！");
+        else 
+            Debug.LogError($"资源包初始化失败：{initOperation.Error}");
+    }
 
-        private string GetHostServerURL()
-        {
-            // 这里返回你的资源服务器地址
-            // 可以根据需要从配置文件中读取或使用硬编码地址
-            return "http://your-resource-server.com/"; // 替换为你的实际服务器地址
-        }
-
-        private class GameQueryServices : IQueryServices
-        {
-            public bool QueryStreamingAssets(string fileName)
-            {
-                // 这里可以自定义逻辑判断文件是否在StreamingAssets中
-                // 如果选择了None选项，可以返回false让系统从服务器下载
-                return false;
-            }
-        }
 #endif
     }
 }
