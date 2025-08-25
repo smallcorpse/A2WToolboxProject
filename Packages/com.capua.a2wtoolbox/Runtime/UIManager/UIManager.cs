@@ -60,7 +60,7 @@ namespace A2W
             canvasObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
         }
 
-        public async UniTask InitPanel<T>() where T : UIPanel
+        public async UniTask<T> InitPanel<T>() where T : UIPanel
         {
             // 在这里加载对应panel的预制体
             T panel = await AssetsLoader.instance.LoadPrefab<T>(GetPanelPath<T>());
@@ -73,9 +73,11 @@ namespace A2W
 
                 panel.Init();
             }
+
+            return panel;
         }
 
-        public async UniTask InitPanel<T>(string path) where T : UIPanel
+        public async UniTask<T> InitPanel<T>(string path) where T : UIPanel
         {
             // 在这里加载对应panel的预制体
             T panel = await AssetsLoader.instance.LoadPrefab<T>(path);
@@ -88,6 +90,8 @@ namespace A2W
 
                 panel.Init();
             }
+
+            return panel;
         }
 
         public async UniTask ShowPanel<T>() where T : UIPanel
