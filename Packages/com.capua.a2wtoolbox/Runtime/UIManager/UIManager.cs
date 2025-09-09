@@ -94,7 +94,7 @@ namespace A2W
             return panel;
         }
 
-        public async UniTask ShowPanel<T>() where T : UIPanel
+        public async UniTask<T> ShowPanel<T>() where T : UIPanel
         {
             // 先判断panels里有没有对应的panel，没有就先调用InitPanel
             T panel = GetPanel<T>();
@@ -109,9 +109,11 @@ namespace A2W
             {
                 await panel.Show();
             }
+
+            return panel;
         }
 
-        public async UniTask HidePanel<T>() where T : UIPanel
+        public async UniTask<T> HidePanel<T>() where T : UIPanel
         {
             // 播放Hide动画 直接调用UIPanel的 public abstract UniTask Hide();
             T panel = GetPanel<T>();
@@ -121,6 +123,8 @@ namespace A2W
             }
 
             // 后续会增加回收机制，资源紧张时释放不需要的panel
+
+            return panel;
         }
 
         public T GetPanel<T>() where T : UIPanel
