@@ -128,14 +128,13 @@ namespace A2W
         }
 
 #elif UNITY_STANDALONE_WIN
-
-    private IEnumerator InitPackage(ResourcePackage package)
+    private async UniTask InitPackage(ResourcePackage package)
     {
         var buildinFileSystemParams = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
         var initParameters = new OfflinePlayModeParameters();
         initParameters.BuildinFileSystemParameters = buildinFileSystemParams;
         var initOperation = package.InitializeAsync(initParameters);
-        yield return initOperation;
+        await initOperation.ToUniTask();
     
         if(initOperation.Status == EOperationStatus.Succeed)
             Debug.Log("资源包初始化成功！");
@@ -143,6 +142,37 @@ namespace A2W
             Debug.LogError($"资源包初始化失败：{initOperation.Error}");
     }
 
+#elif UNITY_ANDROID
+    private async UniTask InitPackage(ResourcePackage package)
+    {
+        // Android平台使用内置文件系统参数初始化
+        var buildinFileSystemParams = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
+        var initParameters = new OfflinePlayModeParameters();
+        initParameters.BuildinFileSystemParameters = buildinFileSystemParams;
+        var initOperation = package.InitializeAsync(initParameters);
+        await initOperation.ToUniTask();
+    
+        if(initOperation.Status == EOperationStatus.Succeed)
+            Debug.Log("Android平台资源包初始化成功！");
+        else 
+            Debug.LogError($"Android平台资源包初始化失败：{initOperation.Error}");
+    }
+
+#else
+    // 其他平台默认实现（可选）
+    private async UniTask InitPackage(ResourcePackage package)
+    {
+        var buildinFileSystemParams = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
+        var initParameters = new OfflinePlayModeParameters();
+        initParameters.BuildinFileSystemParameters = buildinFileSystemParams;
+        var initOperation = package.InitializeAsync(initParameters);
+        await initOperation.ToUniTask();
+    
+        if(initOperation.Status == EOperationStatus.Succeed)
+            Debug.Log("其他平台资源包初始化成功！");
+        else 
+            Debug.LogError($"其他平台资源包初始化失败：{initOperation.Error}");
+    }
 #endif
     }
 }
