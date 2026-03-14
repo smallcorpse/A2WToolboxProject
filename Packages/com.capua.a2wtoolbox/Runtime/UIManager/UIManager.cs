@@ -18,7 +18,7 @@ namespace A2W
 
         private string defaultPanelPath;
 
-        public void Init(string defaultPanelPath = panel_prefabs_dir_path)
+        public void Init(Vector2 screenSize = default, string defaultPanelPath = panel_prefabs_dir_path)
         {
             this.defaultPanelPath = defaultPanelPath;
 
@@ -28,7 +28,7 @@ namespace A2W
             }
 
             // 生成canvas
-            CreateCanvas();
+            CreateCanvas(screenSize);
         }
 
         public void DestroyAllExceptLoading()
@@ -42,7 +42,7 @@ namespace A2W
             }
         }
 
-        private void CreateCanvas()
+        private void CreateCanvas(Vector2 screenSize)
         {
             if (canvasObject is not null) return;
 
@@ -55,7 +55,16 @@ namespace A2W
 
             UnityEngine.UI.CanvasScaler canvasScaler = canvasObject.AddComponent<UnityEngine.UI.CanvasScaler>();
             canvasScaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.referenceResolution = new Vector2(Screen.width, Screen.height);
+
+            if (screenSize.Equals(default))
+            {
+                canvasScaler.referenceResolution = new Vector2(Screen.width, Screen.height);
+            }
+            else
+            {
+                canvasScaler.referenceResolution = screenSize;
+            }
+
 
             canvasObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
         }
