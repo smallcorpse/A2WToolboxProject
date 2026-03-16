@@ -114,7 +114,7 @@ namespace A2W
             Mask mask = maskObj.AddComponent<Mask>();
             mask.showMaskGraphic = false; // 隐藏遮罩自身的图形
             Image maskImage = maskObj.AddComponent<Image>();
-            maskImage.color = Color.clear; // 透明遮罩
+            maskImage.color = Color.white; // 遮罩
             RectTransform maskRect = maskObj.GetComponent<RectTransform>();
             maskRect.anchorMin = Vector2.zero;
             maskRect.anchorMax = Vector2.one;
