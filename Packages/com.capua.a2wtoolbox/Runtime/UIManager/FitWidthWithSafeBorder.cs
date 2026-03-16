@@ -62,22 +62,23 @@ namespace A2W
             // 2. 如果屏幕高宽比大于设计值（屏幕过长），限制ContentRoot的高度
             if (screenAspect > designAspect)
             {
-                // 计算目标高度 = 屏幕宽度 * 设计高宽比
+                // 计算目标高度 = 屏幕宽度 * 设计高宽比（保持设计比例）
                 float targetHeight = Screen.width * designAspect;
-                // 计算缩放比例（相对于Canvas的缩放）
-                float scaleRatio = canvasScaler.referenceResolution.x / Screen.width;
-                // 转换为Canvas内的高度值
-                float canvasTargetHeight = targetHeight * scaleRatio;
+                // 计算上下黑边的像素高度
+                float topBottomPadding = (Screen.height - targetHeight) / 2f;
+                // 转换为Canvas内的像素值（CanvasScaler是Match Width，所以用宽度比例）
+                float canvasScale = canvasScaler.referenceResolution.x / Screen.width;
+                float canvasPadding = topBottomPadding * canvasScale;
 
-                // 设置ContentRoot的尺寸（居中显示）
-                rectTrans.sizeDelta = new Vector2(0, canvasTargetHeight);
-                rectTrans.anchoredPosition = Vector2.zero;
+                // 设置ContentRoot的上下偏移，实现居中显示
+                rectTrans.offsetMin = new Vector2(0, canvasPadding);
+                rectTrans.offsetMax = new Vector2(0, -canvasPadding);
             }
             else
             {
                 // 屏幕比例正常，恢复全屏
-                rectTrans.sizeDelta = Vector2.zero;
-                rectTrans.anchoredPosition = Vector2.zero;
+                rectTrans.offsetMin = Vector2.zero;
+                rectTrans.offsetMax = Vector2.zero;
             }
         }
 
