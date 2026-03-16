@@ -9,6 +9,8 @@ namespace A2W
 {
     public class UIManager : Singleton<UIManager>
     {
+        public Vector2 CanvasSize { get; private set; }
+
         public const string panel_prefabs_dir_path = "Assets/Gameplay/Prefabs/UIPanel/"; // UI面板预制体目录
 
         // 这里保存IUIPanel的list
@@ -18,8 +20,9 @@ namespace A2W
 
         private string defaultPanelPath;
 
-        public void Init(Vector2 screenSize = default, string defaultPanelPath = panel_prefabs_dir_path)
+        public void Init(Vector2 canvasSize = default, string defaultPanelPath = panel_prefabs_dir_path)
         {
+            this.CanvasSize = canvasSize;
             this.defaultPanelPath = defaultPanelPath;
 
             if (panels is null)
@@ -28,7 +31,7 @@ namespace A2W
             }
 
             // 生成canvas
-            CreateCanvas(screenSize);
+            CreateCanvas(canvasSize);
         }
 
         public void DestroyAllExceptLoading()
@@ -42,7 +45,7 @@ namespace A2W
             }
         }
 
-        private void CreateCanvas(Vector2 screenSize)
+        private void CreateCanvas(Vector2 canvasSize)
         {
             if (canvasObject is not null) return;
 
@@ -56,13 +59,13 @@ namespace A2W
             UnityEngine.UI.CanvasScaler canvasScaler = canvasObject.AddComponent<UnityEngine.UI.CanvasScaler>();
             canvasScaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
 
-            if (screenSize.Equals(default))
+            if (canvasSize.Equals(default))
             {
                 canvasScaler.referenceResolution = new Vector2(Screen.width, Screen.height);
             }
             else
             {
-                canvasScaler.referenceResolution = screenSize;
+                canvasScaler.referenceResolution = canvasSize;
             }
 
 
