@@ -66,11 +66,24 @@ namespace A2W
             }
         }
 
+        // 新增：创建UI对象并自动添加RectTransform的工具方法
+        private GameObject CreateUIObject(string name, Transform parent)
+        {
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(parent, false);
+            // 关键：为UI对象添加RectTransform组件（替换默认的Transform）
+            if (obj.GetComponent<RectTransform>() == null)
+            {
+                obj.AddComponent<RectTransform>();
+            }
+            return obj;
+        }
+
         private void CreateCanvas()
         {
             if (canvasObject is not null) return;
 
-            // 1. 创建Canvas根对象
+            // 1. 创建Canvas根对象（Canvas会自动添加RectTransform）
             canvasObject = new GameObject("UICanvas");
             canvasObject.transform.SetParent(transform, false);
 
@@ -86,9 +99,8 @@ namespace A2W
 
             canvasObject.AddComponent<GraphicRaycaster>();
 
-            // 3. 创建全屏黑底（用于显示上下黑边）
-            GameObject bgBlack = new GameObject("BackgroundBlack");
-            bgBlack.transform.SetParent(canvasObject.transform, false);
+            // 3. 创建全屏黑底（使用工具方法确保有RectTransform）
+            GameObject bgBlack = CreateUIObject("BackgroundBlack", canvasObject.transform);
             Image bgImage = bgBlack.AddComponent<Image>();
             bgImage.color = Color.black; // 黑边颜色，可根据需求修改
             RectTransform bgRect = bgBlack.GetComponent<RectTransform>();
@@ -97,9 +109,8 @@ namespace A2W
             bgRect.offsetMin = Vector2.zero;
             bgRect.offsetMax = Vector2.zero;
 
-            // 4. 创建Mask遮罩（限制核心UI区域）
-            GameObject maskObj = new GameObject("UIMask");
-            maskObj.transform.SetParent(canvasObject.transform, false);
+            // 4. 创建Mask遮罩（使用工具方法确保有RectTransform）
+            GameObject maskObj = CreateUIObject("UIMask", canvasObject.transform);
             Mask mask = maskObj.AddComponent<Mask>();
             mask.showMaskGraphic = false; // 隐藏遮罩自身的图形
             Image maskImage = maskObj.AddComponent<Image>();
@@ -110,9 +121,8 @@ namespace A2W
             maskRect.offsetMin = Vector2.zero;
             maskRect.offsetMax = Vector2.zero;
 
-            // 5. 创建核心UI容器（所有面板挂载到这里）
-            GameObject contentObj = new GameObject("ContentRoot");
-            contentObj.transform.SetParent(maskObj.transform, false);
+            // 5. 创建核心UI容器（使用工具方法确保有RectTransform）
+            GameObject contentObj = CreateUIObject("ContentRoot", maskObj.transform);
             contentRoot = contentObj.GetComponent<RectTransform>();
             contentRoot.anchorMin = Vector2.zero;
             contentRoot.anchorMax = Vector2.one;
