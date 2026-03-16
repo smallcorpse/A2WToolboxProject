@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
-using System.Linq;
 using UnityEngine.UI;
 
 namespace A2W
@@ -11,29 +9,37 @@ namespace A2W
     [RequireComponent(typeof(RectTransform))]
     public class FitWidthWithSafeBorder : MonoBehaviour
     {
-        [Header("设计分辨率（宽x高）")]
-        public Vector2 referenceResolution = new Vector2(720, 1280);
         private RectTransform rectTrans;
         private CanvasScaler canvasScaler;
+        // 存储从UIManager同步的分辨率（避免频繁访问单例）
+        private Vector2 referenceResolution;
 
-        void Awake()
+        /// <summary>
+        /// 初始化适配脚本（由UIManager调用）
+        /// </summary>
+        /// <param name="refRes">从UIManager传入的设计分辨率</param>
+        public void Init(Vector2 refRes)
         {
+            // 1. 初始化基础组件
             rectTrans = GetComponent<RectTransform>();
-            // 查找父级的CanvasScaler
             canvasScaler = GetComponentInParent<CanvasScaler>();
+
             if (canvasScaler == null)
             {
                 Debug.LogError("ContentRoot未找到CanvasScaler组件！");
                 return;
             }
-            // 初始化适配
-            AdjustContentSize();
-        }
 
-        void Start()
-        {
-            // 监听Canvas渲染事件（分辨率变化/横竖屏切换时重新适配）
+            // 2. 同步UIManager的设计分辨率
+            referenceResolution = refRes;
+
+            // 3. 立即执行一次适配
+            AdjustContentSize();
+
+            // 4. 注册分辨率变化监听
             Canvas.willRenderCanvases += AdjustContentSize;
+
+            Debug.Log($"FitWidthWithSafeBorder初始化完成，同步分辨率：{referenceResolution}");
         }
 
         void OnDestroy()
@@ -42,7 +48,10 @@ namespace A2W
             Canvas.willRenderCanvases -= AdjustContentSize;
         }
 
-        void AdjustContentSize()
+        /// <summary>
+        /// 外部可调用的适配方法（如需手动触发）
+        /// </summary>
+        public void AdjustContentSize()
         {
             if (canvasScaler == null || rectTrans == null) return;
 
@@ -70,6 +79,16 @@ namespace A2W
                 rectTrans.sizeDelta = Vector2.zero;
                 rectTrans.anchoredPosition = Vector2.zero;
             }
+        }
+
+        /// <summary>
+        /// 提供外部更新分辨率的接口（如需动态修改分辨率时调用）
+        /// </summary>
+        /// <param name="newRefRes">新的设计分辨率</param>
+        public void UpdateReferenceResolution(Vector2 newRefRes)
+        {
+            referenceResolution = newRefRes;
+            AdjustContentSize(); // 立即重新适配
         }
     }
 }

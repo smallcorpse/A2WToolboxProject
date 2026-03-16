@@ -129,9 +129,9 @@ namespace A2W
             contentRoot.offsetMin = Vector2.zero;
             contentRoot.offsetMax = Vector2.zero;
 
-            // 6. 添加适配脚本，自动计算ContentRoot的尺寸
+            // 6. 添加适配脚本，并主动调用Init接口同步分辨率
             FitWidthWithSafeBorder fitScript = contentObj.AddComponent<FitWidthWithSafeBorder>();
-            fitScript.referenceResolution = this.ReferenceResolution;
+            fitScript.Init(this.ReferenceResolution); // 关键：传入UIManager的分辨率并初始化
         }
 
         public async UniTask<T> InitPanel<T>() where T : UIPanel
