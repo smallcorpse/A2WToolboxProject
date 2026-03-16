@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace A2W
 {
@@ -16,7 +17,8 @@ namespace A2W
 
     public class UIManager : Singleton<UIManager>
     {
-        public Vector2 CanvasSize { get; private set; }
+        // 合并：统一为ReferenceResolution（原CanvasSize + ReferenceResolution）
+        public Vector2 ReferenceResolution { get; private set; } = new Vector2(720, 1280); // 默认设计分辨率
 
         public const string panel_prefabs_dir_path = "Assets/Gameplay/Prefabs/UIPanel/";
 
@@ -24,13 +26,25 @@ namespace A2W
         private Canvas mainCanvas;
         private GameObject canvasObject;
         private string defaultPanelPath;
+        // 核心UI容器（所有面板挂载到这个对象下）
+        private RectTransform contentRoot;
 
         // 对象池缓存（用于CacheInPool策略）
         private Dictionary<string, UIPanel> panelPool = new Dictionary<string, UIPanel>();
 
-        public void Init(Vector2 canvasSize = default, string defaultPanelPath = panel_prefabs_dir_path)
+        /// <summary>
+        /// 初始化UIManager
+        /// </summary>
+        /// <param name="referenceResolution">设计分辨率（替代原canvasSize）</param>
+        /// <param name="defaultPanelPath">面板预制体默认路径</param>
+        public void Init(Vector2 referenceResolution = default, string defaultPanelPath = panel_prefabs_dir_path)
         {
-            this.CanvasSize = canvasSize;
+            // 优先使用传入的分辨率，否则使用默认值
+            if (referenceResolution != default)
+            {
+                this.ReferenceResolution = referenceResolution;
+            }
+
             this.defaultPanelPath = defaultPanelPath;
 
             if (panels is null)
@@ -38,7 +52,7 @@ namespace A2W
                 panels = new List<UIPanel>();
             }
 
-            CreateCanvas(canvasSize);
+            CreateCanvas();
         }
 
         public void DestroyAllExceptLoading()
@@ -52,29 +66,62 @@ namespace A2W
             }
         }
 
-        private void CreateCanvas(Vector2 canvasSize)
+        private void CreateCanvas()
         {
             if (canvasObject is not null) return;
 
+            // 1. 创建Canvas根对象
             canvasObject = new GameObject("UICanvas");
             canvasObject.transform.SetParent(transform, false);
 
             mainCanvas = canvasObject.AddComponent<Canvas>();
             mainCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-            UnityEngine.UI.CanvasScaler canvasScaler = canvasObject.AddComponent<UnityEngine.UI.CanvasScaler>();
-            canvasScaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            // 2. 配置CanvasScaler（核心：Scale With Screen Size + Match Width）
+            CanvasScaler canvasScaler = canvasObject.AddComponent<CanvasScaler>();
+            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvasScaler.referenceResolution = this.ReferenceResolution; // 使用合并后的分辨率
+            canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            canvasScaler.matchWidthOrHeight = 0; // 0 = Match Width，1 = Match Height
 
-            if (canvasSize.Equals(default))
-            {
-                canvasScaler.referenceResolution = new Vector2(Screen.width, Screen.height);
-            }
-            else
-            {
-                canvasScaler.referenceResolution = canvasSize;
-            }
+            canvasObject.AddComponent<GraphicRaycaster>();
 
-            canvasObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+            // 3. 创建全屏黑底（用于显示上下黑边）
+            GameObject bgBlack = new GameObject("BackgroundBlack");
+            bgBlack.transform.SetParent(canvasObject.transform, false);
+            Image bgImage = bgBlack.AddComponent<Image>();
+            bgImage.color = Color.black; // 黑边颜色，可根据需求修改
+            RectTransform bgRect = bgBlack.GetComponent<RectTransform>();
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.offsetMin = Vector2.zero;
+            bgRect.offsetMax = Vector2.zero;
+
+            // 4. 创建Mask遮罩（限制核心UI区域）
+            GameObject maskObj = new GameObject("UIMask");
+            maskObj.transform.SetParent(canvasObject.transform, false);
+            Mask mask = maskObj.AddComponent<Mask>();
+            mask.showMaskGraphic = false; // 隐藏遮罩自身的图形
+            Image maskImage = maskObj.AddComponent<Image>();
+            maskImage.color = Color.clear; // 透明遮罩
+            RectTransform maskRect = maskObj.GetComponent<RectTransform>();
+            maskRect.anchorMin = Vector2.zero;
+            maskRect.anchorMax = Vector2.one;
+            maskRect.offsetMin = Vector2.zero;
+            maskRect.offsetMax = Vector2.zero;
+
+            // 5. 创建核心UI容器（所有面板挂载到这里）
+            GameObject contentObj = new GameObject("ContentRoot");
+            contentObj.transform.SetParent(maskObj.transform, false);
+            contentRoot = contentObj.GetComponent<RectTransform>();
+            contentRoot.anchorMin = Vector2.zero;
+            contentRoot.anchorMax = Vector2.one;
+            contentRoot.offsetMin = Vector2.zero;
+            contentRoot.offsetMax = Vector2.zero;
+
+            // 6. 添加适配脚本，自动计算ContentRoot的尺寸
+            FitWidthWithSafeBorder fitScript = contentObj.AddComponent<FitWidthWithSafeBorder>();
+            fitScript.referenceResolution = this.ReferenceResolution;
         }
 
         public async UniTask<T> InitPanel<T>() where T : UIPanel
@@ -89,7 +136,8 @@ namespace A2W
             if (panelPool.TryGetValue(panelName, out var cachedPanel) && cachedPanel is T)
             {
                 var tPanel = cachedPanel as T;
-                tPanel.transform.SetParent(mainCanvas.transform, false);
+                // 挂载到contentRoot而非mainCanvas
+                tPanel.transform.SetParent(contentRoot, false);
                 tPanel.gameObject.SetActive(true);
                 panels.Add(tPanel);
                 panelPool.Remove(panelName);
@@ -101,7 +149,8 @@ namespace A2W
             T panel = await AssetsLoader.instance.LoadPrefab<T>(path);
             if (panel != null)
             {
-                panel.transform.SetParent(mainCanvas.transform, false);
+                // 挂载到contentRoot而非mainCanvas
+                panel.transform.SetParent(contentRoot, false);
                 panels.Add(panel);
                 panel.Init();
             }
@@ -210,6 +259,6 @@ namespace A2W
         {
             return defaultPanelPath + typeof(T).Name;
         }
-
     }
+
 }
