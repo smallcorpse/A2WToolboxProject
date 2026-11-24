@@ -1,229 +1,141 @@
-# Package Starter Kit
-
-The purpose of this starter kit is to provide the data structure and development guidelines for new packages meant for the **Unity Package Manager (UPM)**.
-
-## Are you ready to become a package?
-The Package Manager is a work in progress for Unity. Because of that, your package needs to meet these criteria to become an official Unity package:
-- **Your code accesses public Unity C# APIs only.**
-- **Your code doesn't require security, obfuscation, or conditional access control.**
-
-
-## Package structure
-
-```none
-<root>
-  ├── package.json
-  ├── README.md
-  ├── CHANGELOG.md
-  ├── Third Party Notices.md
-  ├── Editor
-  │   ├── Undefined.A2wframework.Editor.asmdef
-  │   └── EditorExample.cs
-  ├── Runtime
-  │   ├── Undefined.A2wframework.asmdef
-  │   └── RuntimeExample.cs
-  ├── Tests
-  │   ├── .tests.json
-  │   ├── Editor
-  │   │   ├── Undefined.A2wframework.Editor.Tests.asmdef
-  │   │   └── EditorExampleTest.cs
-  │   └── Runtime
-  │        ├── Undefined.A2wframework.Tests.asmdef
-  │        └── RuntimeExampleTest.cs
-  ├── Samples
-  │   └── Example
-  │       ├── .sample.json
-  │       └── SampleExample.cs
-  └── Documentation
-       ├── A2WFramework.md
-       └── Images
-```
-
-## Develop your package
-Package development works best within the Unity Editor.  Here's how to get started:
-
-1. Enter your package name. The name you choose should contain your default organization followed by the name you typed. For example: `Undefined.A2wframework`.
-
-2. [Enter the information](#FillOutFields) for your package in the `package.json` file.
-
-3. [Rename and update](#Asmdef) assembly definition files.
-
-4. [Document](#Doc) your package.
-
-5. [Add samples](#Populate) to your package (code & assets).
-
-6. [Validate](#Valid) your package.
-
-7. [Add tests](#Tests) to your package.
-
-8. Update the `CHANGELOG.md` file. 
-
-    Every new feature or bug fix should have a trace in this file. For more details on the chosen changelog format, see [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
-
-9. Make sure your package [meets all legal requirements](#Legal).
-
-10. Publish your package.
-
-
-
-<a name="FillOutFields"></a>
-### Completing the package manifest
-
-You can either modify the package manifest (`package.json`) file directly in the Inspector or by using an external editor. 
-
-To use the Inspector, select the `package.json` file in the Project browser. The **Package A2WFramework Manifest** page opens for editing.
-
-Update these required attributes in the `package.json` file: 
-
-| **Attribute name:** | **Description:**                                             |
-| ------------------- | ------------------------------------------------------------ |
-| **name**            | The officially registered package name. This name must conform to the [Unity Package Manager naming convention](https://docs.unity3d.com/Manual/upm-manifestPkg.html#name), which uses reverse domain name notation. For example: <br />`"com.[YourCompanyName].[your-package-name]"` |
-| **displayName**     | A user-friendly name to appear in the Unity Editor (for example, in the Project Browser, the Package Manager window, etc.). For example: <br />`"Terrain Builder SDK"` <br/>__NOTE:__ Use a display name that will help users understand what your package is intended for. |
-| **version**         | The package version number (**'MAJOR.MINOR.PATCH"**). This value must respect [semantic versioning](http://semver.org/). For more information, see [Package version](https://docs.unity3d.com/Manual/upm-manifestPkg.html#pkg-ver) in the Unity User Manual. |
-| **unity**           | The lowest Unity version the package is compatible with. If omitted, the package is considered compatible with all Unity versions. <br /><br />The expected format is "**&lt;MAJOR&gt;.&lt;MINOR&gt;**" (for example, **2018.3**). |
-| **description**     | A brief description of the package. This is the text that appears in the [details view](upm-ui-details) of the Packages window. Any [UTF-8](https://en.wikipedia.org/wiki/UTF-8) character code is supported. This means that you can use special formatting character codes, such as line breaks (**\n**) and bullets (**\u25AA**). |
-
-Update the following recommended fields in file **package.json**:
-
-| **Attribute name:** | **Description:**                                             |
-| ------------------- | ------------------------------------------------------------ |
-| **dependencies**    | A map of package dependencies. Keys are package names, and values are specific versions. They indicate other packages that this package depends on. For more information, see [Dependencies](https://docs.unity3d.com/Manual/upm-dependencies.html) in the Unity User Manual.<br /><br />**NOTE**: The Package Manager does not support range syntax, only **SemVer** versions. |
-| **keywords**        | An array of keywords used by the Package Manager search APIs. This helps users find relevant packages. |
-
-
-
-<a name="Asmdef"></a>
-### Updating the Assembly Definition files
-
-You must associate scripts inside a package to an assembly definition file (.asmdef). Assembly definition files are the Unity equivalent to a C# project in the .NET ecosystem. You must set explicit references in the assembly definition file to other assemblies (whether in the same package or in external packages). See [Assembly Definitions](https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html) for more details.
-
-Use these conventions for naming and storing your assembly definition files to ensure that the compiled assembly filenames follow the [.NET Framework Design Guidelines](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/):
-
-* Store Editor-specific code under a root editor assembly definition file:
-
-  `Editor/Undefined.A2wframework.Editor.asmdef`
-
-* Store runtime-specific code under a root runtime assembly definition file:
-
-  `Runtime/Undefined.A2wframework.asmdef`
-
-* Configure related test assemblies for your editor and runtime scripts:
-
-  `Tests/Editor/Undefined.A2wframework.Editor.Tests.asmdef`
-
-  `Tests/Runtime/Undefined.A2wframework.Tests.asmdef`
-
-To get a more general view of a recommended package folder layout, see [Package layout](https://docs.unity3d.com/Manual/cus-layout.html).
-
-
-
-<a name="Doc"></a>
-### Providing documentation
-
-Use the `Documentations~/A2WFramework.md` documentation file to create preliminary, high-level documentation. This document should introduce users to the features and sample files included in your package.  Your package documentation files will be used to generate online and local docs, available from the Package Manager UI.
-
-**Document your public APIs**
-* All public APIs need to be documented with **XmlDoc**.
-* API documentation is generated from [XmlDoc tags](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/xml-documentation-comments) included with all public APIs found in the package. See [Editor/EditorExample.cs](Editor/EditorExample.cs) for an example.
-
-
-
-
-<a name="Populate"></a>
-### Adding Assets to your package
-
-If your package contains a sample, rename the `Samples/Example` folder, and update the `.sample.json` file in it.
-
-In the case where your package contains multiple samples, you can make a copy of the `Samples/Example` folder for each sample, and update the `.sample.json` file accordingly.
-
-Similar to `.tests.json` file, there is a `"createSeparatePackage"` field in `.sample.json`. If set to true, the CI will create a separate package for the sample.
-
-Delete the `Samples` folder altogether if your package does not need samples.
-
-As of Unity release 2019.1, the Package Manager recognizes the `/Samples` directory in a package. Unity doesn't automatically import samples when a user adds the package to a Project. However, users can click a button in the details view of a package in the **Packages** window to optionally import samples into their `/Assets` directory.
-
-
-
-
-<a name="Valid"></a>
-### Validating your package
-
-Before you publish your package, you need to make sure that it passes all the necessary validation checks by using the Package Validation Suite extension (optional).
-
-Once you install the Validation Suite package, a **Validate** button appears in the details view of a package in the **Packages** window. To install the extension, follow these steps:
-
-1. Point your Project manifest to a staging registry by adding this line to the manifest: 
-    `"registry": "https://staging-packages.unity.com"`
-2. Install the **Package Validation Suite v0.3.0-preview.13** or above from the **Packages** window in Unity. Make sure the package scope is set to **All Packages**, and select **Show preview packages** from the **Advanced** menu.
-3. After installation, a **Validate** button appears in the **Packages** window. Click the button to run a series of tests, then click the **See Results** button for additional information:
-    * If it succeeds, a green bar with a **Success** message appears.
-    * If it fails, a red bar with a **Failed** message appears.
-
-**NOTE:** The validation suite is still in preview.
-
-
-
-
-<a name="Tests"></a>
-### Adding tests to your package
-
-All packages must contain tests.  Tests are essential for Unity to ensure that the package works as expected in different scenarios.
-
-**Editor tests**
-* Write all your Editor Tests in `Tests/Editor`
-
-**Playmode Tests**
-
-* Write all your Playmode Tests in `Tests/Runtime`.
-
-#### Separating the tests from the package
-
-You can create a separate package for the tests, which allows you to exclude a large number of tests and Assets from being published in your main package, while still making it easy to test it.
-
-Open the `Tests/.tests.json` file and set the **createSeparatePackage** attribute:
-
-| **Value to set:** | **Result:**                                                  |
-| ----------------- | ------------------------------------------------------------ |
-| **true**          | CI creates a separate package for these tests. At publish time, the Package Manager adds metadata to link the packages together. |
-| **false**         | Keep the tests as part of the published package.             |
-
-
-
-<a name="Legal"></a>
-### Meeting the legal requirements
-
-You can use the Third Party Notices.md file to make sure your package meets any legal requirements. For example, here is a sample license file from the Unity Timeline package:
+# A2WToolbox
+
+Unity 2021.3+ 自研工具包：为单机/小型多场景游戏提供**单例、UI 管理、UI 分辨率适配、资源加载、场景切换、音频、事件、状态机**等基础能力的开箱即用方案。
+
+当前维护方式：**嵌入包（embedded package）**——宿主工程 `Packages/com.capua.a2wtoolbox/`。对源码的修改不会经 git 依赖自动更新；若曾以 git URL 引用（`https://gitee.com/smallcorpse_rui/A2WToolbox.git`），请注意把嵌入侧的修复同步回仓库，反之亦然。
+
+## 功能总览
+
+| 模块 | 类型 | 说明 |
+|---|---|---|
+| `Singleton` / `SceneSingleton` | Runtime | 全局单例与场景单例（场景卸载自动清理） |
+| `UIManager` | Runtime | 动态 Canvas + 面板加载/显示/隐藏/**回收策略** + **分辨率适配** |
+| `FitWidthWithSafeBorder` | Runtime | UI 安全区适配：锁定设计宽高比，非设计比例屏幕自动加黑边 |
+| `AssetsLoader` | Runtime | YooAsset 封装：OfflinePlayMode 初始化（含 Android 分支）、Prefab/Asset 加载 |
+| `SceneLoader` | Runtime | 场景切换与传递（配合 `ITransition` 面板） |
+| `AudioManager` | Runtime | 音频播放管理 |
+| `PoolManager` | Runtime | 对象池 |
+| `Extensions` / `Utils` | Runtime | 常用扩展方法与工具类 |
+| `Hierponent` | Editor | Hierarchy 面板增强工具 |
+| NaughtyAttributes | 3rd | Inspector 特性扩展（v2.1.6，自 github.com/dbrizov 同步） |
+| UniTask | 3rd | 零分配异步（v2.3.2） |
+| StateMachine | 3rd | MonsterLove 状态机 |
+| EventBetter | 3rd | 弱引用事件总线 |
+| UnityLoggerExtended | 3rd | 日志增强 |
+
+依赖：`com.tuyoogame.yooasset`（2.2.9，openupm scoped registry）。
+
+## 安装
+
+**方式 A：嵌入包（推荐，可本地修改）**
 
 ```
-Unity Timeline copyright © 2017-2019 Unity Technologies ApS
-
-Licensed under the Unity Companion License for Unity-dependent projects--see [Unity Companion License](http://www.unity3d.com/legal/licenses/Unity_Companion_License).
-
-Unless expressly provided otherwise, the Software under this license is made available strictly on an “AS IS” BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
-
+<工程>/Packages/com.capua.a2wtoolbox/   # 整个目录放入 Packages 即可
 ```
 
+**方式 B：git URL**
 
+在 `Packages/manifest.json` 的 `dependencies` 中加入：
 
-#### Third Party Notices
-
-If your package has third-party elements, you can include the licenses in a Third Party Notices.md file. You can include a **Component Name**, **License Type**, and **Provide License Details** section for each license you want to include. For example:
-
-```
-This package contains third-party software components governed by the license(s) indicated below:
-
-Component Name: Semver
-
-License Type: "MIT"
-
-[SemVer License](https://github.com/myusername/semver/blob/master/License.txt)
-
-Component Name: MyComponent
-
-License Type: "MyLicense"
-
-[MyComponent License](https://www.mycompany.com/licenses/License.txt)
-
+```json
+"com.capua.a2wtoolbox": "https://gitee.com/smallcorpse_rui/A2WToolbox.git"
 ```
 
-**NOTE**: Any URLs you use should point to a location that contains the reproduced license and the copyright information (if applicable).
+## 快速上手
+
+### 1. 初始化 UIManager（横屏游戏务必传入设计分辨率）
+
+```csharp
+// 默认 720x1280 是竖屏基准，横屏游戏必须显式传入，例如：
+UIManager.instance.Init(new Vector2(1920, 1080));
+```
+
+### 2. UI 面板
+
+```csharp
+public class MyPanel : UIPanel
+{
+    public override UniTask Show() { gameObject.SetActive(true); return UniTask.CompletedTask; }
+    public override UniTask Hide() { gameObject.SetActive(false); return UniTask.CompletedTask; }
+    public override void Init() { /* 首次实例化后调用 */ }
+}
+
+// 显示（不存在则自动从 Assets/Gameplay/Prefabs/UIPanel/ 加载实例化）
+await UIManager.instance.ShowPanel<MyPanel>();
+
+// 隐藏（默认常驻内存；可选回收策略）
+await UIManager.instance.HidePanel<MyPanel>();                                  // KeepInMemory
+await UIManager.instance.HidePanel<MyPanel>(PanelRecycleStrategy.CacheInPool);  // 缓存进池
+await UIManager.instance.HidePanel<MyPanel>(PanelRecycleStrategy.DestroyImmediately);
+
+// 资源紧张时回收全部非活跃面板
+UIManager.instance.RecycleAllInactivePanels();
+UIManager.instance.ClearPanelPool();
+```
+
+### 3. UI 分辨率适配（FitWidthWithSafeBorder）
+
+UIManager 创建 Canvas 时自动构建以下层级，无需手工配置：
+
+```
+UICanvas (CanvasScaler: ScaleWithScreenSize, Match Width)
+├── BackgroundBlack        # 黑边（仅出现黑边时显示，不拦截点击）
+└── UIMask (Mask)
+    └── ContentRoot        # 所有面板挂载于此；挂 FitWidthWithSafeBorder
+```
+
+行为：窗口比例与设计比例一致时全屏铺满；更高/更窄的屏幕在上下（或左右）自动出黑边，UI 永远锁定设计宽高比、不裁切不变形。黑边颜色可在 `UIManager.CreateCanvas` 中修改。
+
+> 注意：该方案只作用于 UI 层。相机渲染的世界画面由相机 aspect 自适应，无黑边。
+
+### 4. 资源加载（AssetsLoader，基于 YooAsset）
+
+```csharp
+await AssetsLoader.instance.Init();          // OfflinePlayMode，含 Android 内置文件系统分支
+var prefab = await AssetsLoader.instance.LoadPrefab<MyPanel>("Assets/.../MyPanel.prefab");
+var sprite = await AssetsLoader.instance.LoadAsset<Sprite>("Assets/.../icon.png", false);
+```
+
+### 5. 单例
+
+```csharp
+public class GameManager : Singleton<GameManager> { }       // 全局
+public class WorldManager : SceneSingleton<WorldManager> { } // 场景级，随场景卸载
+```
+
+### 6. 事件（EventBetter）
+
+```csharp
+public struct MyMessage : IEventMessage { }
+
+this.Listen<MyMessage>(OnMyMessage);   // 订阅（弱引用）
+this.DelListen<MyMessage>(OnMyMessage); // 退订——务必在 OnDestroy 配对调用
+```
+
+## 目录结构
+
+```
+com.capua.a2wtoolbox/
+├── package.json
+├── README.md / CHANGELOG.md / Third Party Notices.md
+├── Editor/            # Hierponent（编辑器工具）
+├── Runtime/
+│   ├── AudioManager/  Extensions/  Loader/  PoolManager/
+│   ├── SceneLoader/   Singleton/   UIManager/  Utils/
+│   └── UIManager/FitWidthWithSafeBorder.cs   # UI 安全区适配
+└── 3rd/               # 第三方（NaughtyAttributes / UniTask / StateMachine / EventBetter / UnityLoggerExtended）
+```
+
+## 版本记录
+
+- **0.2.7** — UI 分辨率适配重构：`Init(referenceResolution)`、FitWidthWithSafeBorder 黑边方案、面板回收策略（DestroyImmediately / CacheInPool / KeepInMemory）、AssetsLoader Android 初始化分支。
+- 0.2.6 及以前 — 基础能力建设（单例/UIManager/AssetsLoader/SceneLoader/AudioManager/PoolManager + 第三方集成）。
+
+## 维护备忘
+
+- 嵌入侧相对 0.2.7 的本地修复（同步回 gitee 时勿遗漏）：
+  1. `UIManager.CreateCanvas`：BackgroundBlack 默认隐藏 + `raycastTarget=false`（否则挡 3D 场景、拦截点击）
+  2. `UIMask` 的 Image `raycastTarget=false`（showMaskGraphic=false 只是不绘制，不阻止射线）
+  3. `DestroyAllExceptLoading` 的 `panels` null 防御（编辑器直接进入非 Launch 场景时未 Init 会炸）
+  4. `FitWidthWithSafeBorder` 持有 BackgroundBlack 引用并按黑边状态控制显隐
+- 第三方同步状态：NaughtyAttributes **2.1.4 → 2.1.6**（2026-11-24，来自 github.com/dbrizov/NaughtyAttributes）；UniTask 2.3.2、StateMachine、EventBetter、UnityLoggerExtended 沿用当时版本。

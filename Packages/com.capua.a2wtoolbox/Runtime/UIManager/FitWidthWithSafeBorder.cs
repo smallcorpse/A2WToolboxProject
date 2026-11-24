@@ -13,6 +13,8 @@ namespace A2W
         private CanvasScaler canvasScaler;
         // 存储从UIManager同步的分辨率（避免频繁访问单例）
         private Vector2 referenceResolution;
+        // 黑底（仅在出现黑边时显示，避免全屏黑色 Image 挡住 3D 场景）
+        private GameObject backgroundBlack;
 
         /// <summary>
         /// 初始化适配脚本（由UIManager调用）
@@ -32,6 +34,9 @@ namespace A2W
 
             // 2. 同步UIManager的设计分辨率
             referenceResolution = refRes;
+
+            // 查找 UIManager 创建的黑底（黑边出现时显示，全屏时隐藏）
+            backgroundBlack = transform.root.Find("BackgroundBlack")?.gameObject;
 
             // 3. 立即执行一次适配
             AdjustContentSize();
@@ -73,12 +78,16 @@ namespace A2W
                 // 设置ContentRoot的上下偏移，实现居中显示
                 rectTrans.offsetMin = new Vector2(0, canvasPadding);
                 rectTrans.offsetMax = new Vector2(0, -canvasPadding);
+
+                if (backgroundBlack != null) backgroundBlack.SetActive(true);
             }
             else
             {
                 // 屏幕比例正常，恢复全屏
                 rectTrans.offsetMin = Vector2.zero;
                 rectTrans.offsetMax = Vector2.zero;
+
+                if (backgroundBlack != null) backgroundBlack.SetActive(false);
             }
         }
 

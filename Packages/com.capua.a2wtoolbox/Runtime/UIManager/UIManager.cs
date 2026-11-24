@@ -57,6 +57,9 @@ namespace A2W
 
         public void DestroyAllExceptLoading()
         {
+            // 编辑器直接进入非 Launch 场景时可能尚未 Init，panels 为 null
+            if (panels == null) return;
+
             var panelsToRemove = panels.Where(panel => !(panel is ITransition)).ToList();
 
             foreach (var panel in panelsToRemove)
@@ -103,6 +106,10 @@ namespace A2W
             GameObject bgBlack = CreateUIObject("BackgroundBlack", canvasObject.transform);
             Image bgImage = bgBlack.AddComponent<Image>();
             bgImage.color = Color.black; // 黑边颜色，可根据需求修改
+            // 不拦截点击；且默认隐藏——只有出现黑边时由 FitWidthWithSafeBorder 显示，
+            // 否则全屏黑色 Image 会挡住 3D 场景（ScreenSpaceOverlay 渲染在最上层）
+            bgImage.raycastTarget = false;
+            bgBlack.SetActive(false);
             RectTransform bgRect = bgBlack.GetComponent<RectTransform>();
             bgRect.anchorMin = Vector2.zero;
             bgRect.anchorMax = Vector2.one;
@@ -115,6 +122,8 @@ namespace A2W
             mask.showMaskGraphic = false; // 隐藏遮罩自身的图形
             Image maskImage = maskObj.AddComponent<Image>();
             maskImage.color = Color.white; // 遮罩
+            // showMaskGraphic=false 只是不绘制图形，raycastTarget 默认 true 仍会拦截点击，必须关闭
+            maskImage.raycastTarget = false;
             RectTransform maskRect = maskObj.GetComponent<RectTransform>();
             maskRect.anchorMin = Vector2.zero;
             maskRect.anchorMax = Vector2.one;
